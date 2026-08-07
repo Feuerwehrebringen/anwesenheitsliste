@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feuerwehr Ebringen - Doku</title>
+  <style>
+    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px 10px; max-width: 650px; margin: auto; background-color: #e9ecef; color: #333; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-top: 6px solid #d32f2f; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #495057; }
+    
+    input[type="text"], input[type="date"], input[type="time"], select, textarea { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; font-family: inherit; transition: border-color 0.2s; background-color: #fff; }
+    input:focus, select:focus, textarea:focus { border-color: #d32f2f; outline: none; box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1); }
+    textarea { resize: vertical; }
+    
+    .flex-row { display: flex; gap: 15px; flex-wrap: wrap; }
+    .flex-row > div { flex: 1; min-width: 150px; }
+    
+    .attendee-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #d32f2f; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+    .attendee-row select { flex: 1; min-width: 130px; padding: 10px; }
+    
+    .checkbox-container { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; color: #d32f2f; background: #ffebee; padding: 8px 12px; border-radius: 6px; flex-grow: 1; justify-content: center; cursor: pointer; border: 1px solid #ffcdd2; }
+    .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #d32f2f; }
+    
+    button { background: linear-gradient(135deg, #e53935, #c62828); color: white; border: none; cursor: pointer; font-weight: bold; font-size: 16px; padding: 14px; border-radius: 6px; transition: transform 0.1s, box-shadow 0.2s; width: 100%; margin-top: 10px; }
+    button:hover { box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
+    button:active { transform: translateY(2px); }
+    button:disabled { background: #9e9e9e; cursor: not-allowed; box-shadow: none; transform: none; }
+    
+    .add-btn { background: #e0e0e0; color: #333; }
+    .add-btn:hover { background: #d5d5d5; box-shadow: none; }
+    
+    .remove-btn { position: absolute; top: -10px; right: -10px; background: #fff; color: #d32f2f; font-size: 16px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #d32f2f; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .remove-btn:hover { background: #d32f2f; color: #fff; }
+    
+    #message { text-align: center; font-weight: bold; margin-bottom: 15px; color: #2e7d32; font-size: 16px; padding: 10px; border-radius: 6px; }
+    .logo-container { text-align: center; margin-bottom: 25px; }
+    #loadingOverlay { text-align: center; font-style: italic; color: #666; margin-bottom: 15px; padding: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo-container">
+      <img src="https://lh3.googleusercontent.com/d/13vztxml1yQVTaQ2ikCtaFVhf7GRnlXE5" alt="Logo Feuerwehr Ebringen" style="max-height: 110px;" onerror="this.style.display='none'">
+    </div>
+    
+    <div id="loadingOverlay">Lade Daten vom Server...</div>
+    <div id="message"></div>
+    
+    <form id="rehearsalForm" style="display: none;">
+      <div class="form-group">
+        <label>Thema der Übung / des Einsatzes:</label>
+        <input type="text" id="topic" placeholder="Z.B. THL Übung, Brandeinsatz, etc." required>
+      </div>
+
+      <div class="form-group flex-row">
+        <div>
+          <label>Datum:</label>
+          <input type="date" id="date" required>
+        </div>
+        <div>
+          <label>Beginn:</label>
+          <input type="time" id="startTime" required>
+        </div>
+        <div>
+          <label>Ende:</label>
+          <input type="time" id="endTime" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Übungsleiter / Einsatzleiter:</label>
+        <select id="leader" required>
+          <option value="" disabled selected>Bitte wählen...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Anwesende Kameraden, Funktionen & Fahrzeuge:</label>
+        <div id="attendeesContainer">
+        </div>
+        <button type="button" class="add-btn" onclick="addAttendee()">+ Weiteren Kameraden hinzufügen</button>
+      </div>
+
+      <div class="form-group">
+        <label>Sonstige Bemerkungen:</label>
+        <textarea id="notes" rows="3" placeholder="Besondere Vorkommnisse, defekte Ausrüstung (optional)"></textarea>
+      </div>
+
+      <button type="button" id="submitBtn" onclick="submitForm()">Dienst speichern & PDF senden</button>
+    </form>
+  </div>
+
+  <script>
+    // =========================================================================
+    // WICHTIG: Füge hier die URL deiner veröffentlichten Google Apps Script Web-App ein!
+    // =========================================================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbxuqBnxkcwqdiprggUZZGKGTT4Yfu8BdXWinCsHxU0j1JfWDRH3NW-O4ODIboB5ly8A/exec";
+
+    document.getElementById('date').valueAsDate = new Date();
+
+    let kameradenOptionsHTML = '<option value="" disabled selected>Name</option>';
+    let funktionenOptionsHTML = '<option value="" disabled selected>Funktion</option>';
+    let fahrzeugeOptionsHTML = '<option value="" disabled selected>Fahrzeug</option>';
+
+    // Lade Daten über fetch API anstatt google.script.run
+    fetch(API_URL + "?action=getSettings")
+      .then(response => response.json())
+      .then(data => {
+        const leaderSelect = document.getElementById('leader');
+        
+        data.kameraden.forEach(name => {
+          kameradenOptionsHTML += `<option value="${name}">${name}</option>`;
+          let opt = document.createElement('option');
+          opt.value = name;
+          opt.innerHTML = name;
+          leaderSelect.appendChild(opt);
+        });
+
+        data.funktionen.forEach(funktion => {
+          funktionenOptionsHTML += `<option value="${funktion}">${funktion}</option>`;
+        });
+
+        data.fahrzeuge.forEach(fahrzeug => {
+          fahrzeugeOptionsHTML += `<option value="${fahrzeug}">${fahrzeug}</option>`;
+        });
+
+        addAttendee();
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('rehearsalForm').style.display = 'block';
+      })
+      .catch(error => {
+        document.getElementById('loadingOverlay').innerText = "Fehler beim Laden der Daten. Bitte Seite neu laden.";
+        console.error("Fetch Error:", error);
+      });
+
+    function addAttendee() {
+      const container = document.getElementById('attendeesContainer');
+      const row = document.createElement('div');
+      row.className = 'attendee-row';
+      row.innerHTML = `
+        <select class="att-name" required>
+          ${kameradenOptionsHTML}
+        </select>
+        <select class="att-role" required>
+          ${funktionenOptionsHTML}
+        </select>
+        <select class="att-vehicle" required>
+          ${fahrzeugeOptionsHTML}
+        </select>
+        <label class="checkbox-container">
+          <input type="checkbox" class="att-atemschutz"> Atemschutz
+        </label>
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove()" title="Entfernen">✖</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function formatDate(dateString) {
+      const parts = dateString.split('-');
+      if(parts.length === 3) {
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+      }
+      return dateString;
+    }
+
+    function submitForm() {
+      const topic = document.getElementById('topic').value;
+      const rawDate = document.getElementById('date').value;
+      const formattedDate = formatDate(rawDate);
+      const startTime = document.getElementById('startTime').value;
+      const endTime = document.getElementById('endTime').value;
+      const leader = document.getElementById('leader').value;
+      const notes = document.getElementById('notes').value;
+
+      const names = document.getElementsByClassName('att-name');
+      const roles = document.getElementsByClassName('att-role');
+      const vehicles = document.getElementsByClassName('att-vehicle');
+      const atemschutzBoxes = document.getElementsByClassName('att-atemschutz');
+      
+      let attendeesTextArray = [];
+      let attendeesPdfArray = [];
+
+      for (let i = 0; i < names.length; i++) {
+        if (names[i].value !== "") {
+          let roleText = roles[i].value !== "" ? roles[i].value : "-";
+          let vehicleText = vehicles[i].value !== "" ? vehicles[i].value : "-";
+          let hasAtemschutz = atemschutzBoxes[i].checked;
+          
+          let atemschutzText = hasAtemschutz ? " | Atemschutz" : "";
+          attendeesTextArray.push(`${names[i].value} (${roleText} | ${vehicleText}${atemschutzText})`);
+          
+          attendeesPdfArray.push({
+            name: names[i].value,
+            role: roleText,
+            vehicle: vehicleText,
+            atemschutz: hasAtemschutz
+          });
+        }
+      }
+
+      if (!topic || !rawDate || !startTime || !endTime || !leader || attendeesPdfArray.length === 0) {
+        alert("Bitte fülle alle Pflichtfelder aus und wähle mindestens einen Kameraden.");
+        return;
+      }
+
+      const payloadData = {
+        topic: topic,
+        date: formattedDate,
+        startTime: startTime,
+        endTime: endTime,
+        leader: leader,
+        notes: notes,
+        attendeesText: attendeesTextArray.join('\n'),
+        attendeesList: attendeesPdfArray
+      };
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerText = "Bericht wird erstellt & gesendet...";
+      btn.disabled = true;
+
+      // Senden der Daten per fetch() an die Google Apps Script API
+      fetch(API_URL, {
+        method: 'POST',
+        // text/plain verhindert preflight CORS fehler bei Google Scripts
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify({
+          action: 'saveData',
+          payload: payloadData
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+        const msgBox = document.getElementById('message');
+        if (result.status === 'success') {
+          msgBox.style.backgroundColor = '#e8f5e9';
+          msgBox.style.color = '#2e7d32';
+          msgBox.innerText = result.message;
+          
+          document.getElementById('rehearsalForm').reset();
+          document.getElementById('date').valueAsDate = new Date();
+          
+          document.getElementById('attendeesContainer').innerHTML = '';
+          addAttendee();
+        } else {
+          msgBox.style.backgroundColor = '#ffebee';
+          msgBox.style.color = '#c62828';
+          msgBox.innerText = "Fehler: " + result.message;
+        }
+
+        btn.innerText = "Dienst speichern & PDF senden";
+        btn.disabled = false;
+        
+        setTimeout(() => { 
+          msgBox.innerText = ""; 
+          msgBox.style.backgroundColor = 'transparent';
+        }, 6000);
+      })
+      .catch(error => {
+        alert("Verbindungsfehler. Bitte erneut versuchen.");
+        console.error("Post Error:", error);
+        btn.innerText = "Dienst speichern & PDF senden";
+        btn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
