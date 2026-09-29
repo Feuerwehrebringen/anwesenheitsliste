@@ -3,270 +3,307 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Feuerwehr Ebringen - Doku</title>
+  <title>Anwesenheit – FF Ebringen</title>
+  <meta name="theme-color" content="#d32f2f">
   <style>
-    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px 10px; max-width: 650px; margin: auto; background-color: #e9ecef; color: #333; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-top: 6px solid #d32f2f; }
+    :root { --rot: #d32f2f; --rot-dunkel: #c62828; --rot-hell: #ffebee; --grau: #495057; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px 12px; max-width: 680px; margin: auto; background: #e9ecef; color: #333; }
+    .card { background: #fff; padding: 28px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.1); border-top: 6px solid var(--rot); }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo img { max-width: 100%; height: auto; max-height: 90px; }
+
     .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #495057; }
-    
-    input[type="text"], input[type="date"], input[type="time"], select, textarea { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; font-family: inherit; transition: border-color 0.2s; background-color: #fff; }
-    input:focus, select:focus, textarea:focus { border-color: #d32f2f; outline: none; box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1); }
+    label.lbl { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: var(--grau); }
+    .req { color: var(--rot); }
+    input[type="text"], input[type="date"], input[type="time"], select, textarea {
+      width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; font-family: inherit; background: #fff; color: #333; }
+    input:focus, select:focus, textarea:focus { border-color: var(--rot); outline: none; box-shadow: 0 0 0 3px rgba(211,47,47,.12); }
     textarea { resize: vertical; }
-    
+    .invalid { border-color: var(--rot) !important; background: #fff8f8 !important; }
+
     .flex-row { display: flex; gap: 15px; flex-wrap: wrap; }
-    .flex-row > div { flex: 1; min-width: 150px; }
-    
-    .attendee-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #d32f2f; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
-    .attendee-row select { flex: 1; min-width: 130px; padding: 10px; }
-    
-    .checkbox-container { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; color: #d32f2f; background: #ffebee; padding: 8px 12px; border-radius: 6px; flex-grow: 1; justify-content: center; cursor: pointer; border: 1px solid #ffcdd2; }
-    .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #d32f2f; }
-    
-    button { background: linear-gradient(135deg, #e53935, #c62828); color: white; border: none; cursor: pointer; font-weight: bold; font-size: 16px; padding: 14px; border-radius: 6px; transition: transform 0.1s, box-shadow 0.2s; width: 100%; margin-top: 10px; }
-    button:hover { box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
+    .flex-row > div { flex: 1; min-width: 140px; }
+
+    .att-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .counter { font-size: 13px; color: #777; font-weight: normal; }
+    .attendee-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; background: #f8f9fa; padding: 14px; border-radius: 8px; border-left: 4px solid var(--rot); box-shadow: 0 2px 4px rgba(0,0,0,.05); position: relative; }
+    .attendee-row select { flex: 1; min-width: 140px; padding: 10px; }
+    .as-box { display: flex; align-items: center; justify-content: center; gap: 8px; flex-basis: 100%; font-size: 14px; font-weight: bold; color: var(--rot); background: var(--rot-hell); padding: 9px 12px; border-radius: 6px; cursor: pointer; border: 1px solid #ffcdd2; user-select: none; }
+    .as-box input { width: 20px; height: 20px; cursor: pointer; accent-color: var(--rot); margin: 0; }
+    .as-box.on { background: var(--rot); color: #fff; border-color: var(--rot); }
+    .as-box.on input { accent-color: #fff; }
+
+    button { background: linear-gradient(135deg, #e53935, var(--rot-dunkel)); color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: 16px; padding: 14px; border-radius: 6px; width: 100%; margin-top: 6px; transition: transform .1s, box-shadow .2s; font-family: inherit; }
+    button:hover { box-shadow: 0 4px 10px rgba(211,47,47,.3); }
     button:active { transform: translateY(2px); }
     button:disabled { background: #9e9e9e; cursor: not-allowed; box-shadow: none; transform: none; }
-    
     .add-btn { background: #e0e0e0; color: #333; }
     .add-btn:hover { background: #d5d5d5; box-shadow: none; }
-    
-    .remove-btn { position: absolute; top: -10px; right: -10px; background: #fff; color: #d32f2f; font-size: 16px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #d32f2f; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .remove-btn:hover { background: #d32f2f; color: #fff; }
-    
-    #message { text-align: center; font-weight: bold; margin-bottom: 15px; color: #2e7d32; font-size: 16px; padding: 10px; border-radius: 6px; }
-    .logo-container { text-align: center; margin-bottom: 25px; }
-    #loadingOverlay { text-align: center; font-style: italic; color: #666; margin-bottom: 15px; padding: 20px; }
+    .remove-btn { position: absolute; top: -10px; right: -10px; background: #fff; color: var(--rot); font-size: 15px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--rot); display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; box-shadow: 0 2px 4px rgba(0,0,0,.2); }
+    .remove-btn:hover { background: var(--rot); color: #fff; }
+
+    #message { display: none; text-align: center; font-weight: bold; margin-bottom: 18px; font-size: 15px; padding: 12px; border-radius: 6px; }
+    #message.ok { display: block; background: #e8f5e9; color: #2e7d32; }
+    #message.err { display: block; background: var(--rot-hell); color: var(--rot-dunkel); }
+    #loading { text-align: center; color: #666; padding: 20px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid #ddd; border-top-color: var(--rot); border-radius: 50%; margin: 0 auto 10px; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { text-align: center; font-size: 12px; color: #999; margin-top: 16px; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="logo-container">
-      <img src="https://lh3.googleusercontent.com/d/13vztxml1yQVTaQ2ikCtaFVhf7GRnlXE5" alt="Logo Feuerwehr Ebringen" style="max-height: 110px;" onerror="this.style.display='none'">
-    </div>
-    
-    <div id="loadingOverlay">Lade Daten vom Server...</div>
-    <div id="message"></div>
-    
-    <form id="rehearsalForm" style="display: none;">
-      <div class="form-group">
-        <label>Thema der Übung / des Einsatzes:</label>
-        <input type="text" id="topic" placeholder="Z.B. THL Übung, Brandeinsatz, etc." required>
-      </div>
-
-      <div class="form-group flex-row">
-        <div>
-          <label>Datum:</label>
-          <input type="date" id="date" required>
-        </div>
-        <div>
-          <label>Beginn:</label>
-          <input type="time" id="startTime" required>
-        </div>
-        <div>
-          <label>Ende:</label>
-          <input type="time" id="endTime" required>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>Übungsleiter / Einsatzleiter:</label>
-        <select id="leader" required>
-          <option value="" disabled selected>Bitte wählen...</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Anwesende Kameraden, Funktionen & Fahrzeuge:</label>
-        <div id="attendeesContainer">
-        </div>
-        <button type="button" class="add-btn" onclick="addAttendee()">+ Weiteren Kameraden hinzufügen</button>
-      </div>
-
-      <div class="form-group">
-        <label>Sonstige Bemerkungen:</label>
-        <textarea id="notes" rows="3" placeholder="Besondere Vorkommnisse, defekte Ausrüstung (optional)"></textarea>
-      </div>
-
-      <button type="button" id="submitBtn" onclick="submitForm()">Dienst speichern & PDF senden</button>
-    </form>
+<div class="card">
+  <div class="logo">
+    <img src="data:image/png;base64,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" alt="Freiwillige Feuerwehr Ebringen">
   </div>
 
-  <script>
-    // =========================================================================
-    // WICHTIG: Füge hier die URL deiner veröffentlichten Google Apps Script Web-App ein!
-    // =========================================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbxuqBnxkcwqdiprggUZZGKGTT4Yfu8BdXWinCsHxU0j1JfWDRH3NW-O4ODIboB5ly8A/exec";
+  <div id="loading"><div class="spinner"></div>Lade Daten vom Server …</div>
+  <div id="message"></div>
 
-    document.getElementById('date').valueAsDate = new Date();
+  <form id="form" style="display:none;" novalidate>
+    <div class="form-group">
+      <label class="lbl" for="topic">Thema der Übung / des Einsatzes <span class="req">*</span></label>
+      <input type="text" id="topic" placeholder="z.B. THL-Übung, Brandeinsatz …" autocomplete="off">
+    </div>
 
-    let kameradenOptionsHTML = '<option value="" disabled selected>Name</option>';
-    let funktionenOptionsHTML = '<option value="" disabled selected>Funktion</option>';
-    let fahrzeugeOptionsHTML = '<option value="" disabled selected>Fahrzeug</option>';
+    <div class="form-group flex-row">
+      <div>
+        <label class="lbl" for="date">Datum <span class="req">*</span></label>
+        <input type="date" id="date">
+      </div>
+      <div>
+        <label class="lbl" for="startTime">Beginn <span class="req">*</span></label>
+        <input type="time" id="startTime">
+      </div>
+      <div>
+        <label class="lbl" for="endTime">Ende <span class="req">*</span></label>
+        <input type="time" id="endTime">
+      </div>
+    </div>
 
-    // Lade Daten über fetch API anstatt google.script.run
-    fetch(API_URL + "?action=getSettings")
-      .then(response => response.json())
-      .then(data => {
-        const leaderSelect = document.getElementById('leader');
-        
-        data.kameraden.forEach(name => {
-          kameradenOptionsHTML += `<option value="${name}">${name}</option>`;
-          let opt = document.createElement('option');
-          opt.value = name;
-          opt.innerHTML = name;
-          leaderSelect.appendChild(opt);
-        });
+    <div class="form-group">
+      <label class="lbl" for="leader">Übungsleiter / Einsatzleiter <span class="req">*</span></label>
+      <select id="leader"></select>
+    </div>
 
-        data.funktionen.forEach(funktion => {
-          funktionenOptionsHTML += `<option value="${funktion}">${funktion}</option>`;
-        });
+    <div class="form-group">
+      <label class="lbl att-head">
+        <span>Anwesende Kameraden, Funktionen &amp; Fahrzeuge <span class="req">*</span></span>
+        <span class="counter" id="counter"></span>
+      </label>
+      <div id="attendees"></div>
+      <button type="button" class="add-btn" id="addBtn">+ Weiteren Kameraden hinzufügen</button>
+    </div>
 
-        data.fahrzeuge.forEach(fahrzeug => {
-          fahrzeugeOptionsHTML += `<option value="${fahrzeug}">${fahrzeug}</option>`;
-        });
+    <div class="form-group">
+      <label class="lbl" for="notes">Sonstige Bemerkungen</label>
+      <textarea id="notes" rows="3" placeholder="Besondere Vorkommnisse, defekte Ausrüstung (optional)"></textarea>
+    </div>
 
-        addAttendee();
-        document.getElementById('loadingOverlay').style.display = 'none';
-        document.getElementById('rehearsalForm').style.display = 'block';
-      })
-      .catch(error => {
-        document.getElementById('loadingOverlay').innerText = "Fehler beim Laden der Daten. Bitte Seite neu laden.";
-        console.error("Fetch Error:", error);
+    <button type="submit" id="submitBtn">Dienst speichern &amp; PDF senden</button>
+  </form>
+</div>
+<div class="footer">Freiwillige Feuerwehr Ebringen · Dienstdokumentation</div>
+
+<script>
+  // ==========================================================================
+  // URL der veröffentlichten Apps-Script-Web-App (Bereitstellung → Web-App)
+  // ==========================================================================
+  const API_URL = "https://script.google.com/macros/s/AKfycbxdfFwc3Y_4t2a67TIhLbwDM7rzUmzZY67X7FH8d0GYF_Hz-K-h9jlfeugWPRuTClo/exec";
+
+  const SUBMIT_TEXT = "Dienst speichern & PDF senden";
+  let settings = { kameraden: [], leiter: [], funktionen: [], fahrzeuge: [] };
+
+  const $ = id => document.getElementById(id);
+
+  // ---------- Hilfsfunktionen ----------
+  function todayIso() {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function fillSelect(select, placeholder, values) {
+    select.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = ""; ph.textContent = placeholder;
+    select.appendChild(ph);
+    values.forEach(v => {
+      const o = document.createElement("option");
+      o.value = v; o.textContent = v;
+      select.appendChild(o);
+    });
+  }
+
+  function showMessage(text, ok) {
+    const m = $("message");
+    m.textContent = text;
+    m.className = ok ? "ok" : "err";
+    m.scrollIntoView({ behavior: "smooth", block: "center" });
+    clearTimeout(showMessage.t);
+    if (ok) showMessage.t = setTimeout(() => { m.className = ""; }, 8000);
+  }
+
+  // ---------- Anwesende ----------
+  function addAttendee() {
+    const row = document.createElement("div");
+    row.className = "attendee-row";
+
+    const name = document.createElement("select");
+    name.className = "att-name";
+    fillSelect(name, "Name", settings.kameraden);
+
+    const role = document.createElement("select");
+    role.className = "att-role";
+    fillSelect(role, "Funktion", settings.funktionen);
+
+    const vehicle = document.createElement("select");
+    vehicle.className = "att-vehicle";
+    fillSelect(vehicle, "Fahrzeug", settings.fahrzeuge);
+
+    const as = document.createElement("label");
+    as.className = "as-box";
+    as.innerHTML = '<input type="checkbox" class="att-as"> Atemschutz';
+    as.querySelector("input").addEventListener("change", e => as.classList.toggle("on", e.target.checked));
+
+    const rm = document.createElement("button");
+    rm.type = "button"; rm.className = "remove-btn"; rm.title = "Entfernen"; rm.textContent = "✖";
+    rm.addEventListener("click", () => {
+      row.remove();
+      if (!document.querySelector(".attendee-row")) addAttendee();
+      refreshNames();
+    });
+
+    name.addEventListener("change", () => { name.classList.remove("invalid"); refreshNames(); });
+
+    row.append(name, role, vehicle, as, rm);
+    $("attendees").appendChild(row);
+    refreshNames();
+    return row;
+  }
+
+  // Bereits gewählte Namen in den anderen Zeilen ausblenden + Zähler aktualisieren
+  function refreshNames() {
+    const selects = [...document.querySelectorAll(".att-name")];
+    const chosen = selects.map(s => s.value).filter(Boolean);
+    selects.forEach(s => {
+      [...s.options].forEach(o => {
+        if (!o.value) return;
+        const taken = chosen.includes(o.value) && s.value !== o.value;
+        o.disabled = taken;
+        o.hidden = taken;
       });
+    });
+    const n = chosen.length;
+    $("counter").textContent = n ? n + (n === 1 ? " Kamerad" : " Kameraden") : "";
+  }
 
-    function addAttendee() {
-      const container = document.getElementById('attendeesContainer');
-      const row = document.createElement('div');
-      row.className = 'attendee-row';
-      row.innerHTML = `
-        <select class="att-name" required>
-          ${kameradenOptionsHTML}
-        </select>
-        <select class="att-role" required>
-          ${funktionenOptionsHTML}
-        </select>
-        <select class="att-vehicle" required>
-          ${fahrzeugeOptionsHTML}
-        </select>
-        <label class="checkbox-container">
-          <input type="checkbox" class="att-atemschutz"> Atemschutz
-        </label>
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove()" title="Entfernen">✖</button>
-      `;
-      container.appendChild(row);
-    }
-
-    function formatDate(dateString) {
-      const parts = dateString.split('-');
-      if(parts.length === 3) {
-        return `${parts[2]}.${parts[1]}.${parts[0]}`;
-      }
-      return dateString;
-    }
-
-    function submitForm() {
-      const topic = document.getElementById('topic').value;
-      const rawDate = document.getElementById('date').value;
-      const formattedDate = formatDate(rawDate);
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
-      const leader = document.getElementById('leader').value;
-      const notes = document.getElementById('notes').value;
-
-      const names = document.getElementsByClassName('att-name');
-      const roles = document.getElementsByClassName('att-role');
-      const vehicles = document.getElementsByClassName('att-vehicle');
-      const atemschutzBoxes = document.getElementsByClassName('att-atemschutz');
-      
-      let attendeesTextArray = [];
-      let attendeesPdfArray = [];
-
-      for (let i = 0; i < names.length; i++) {
-        if (names[i].value !== "") {
-          let roleText = roles[i].value !== "" ? roles[i].value : "-";
-          let vehicleText = vehicles[i].value !== "" ? vehicles[i].value : "-";
-          let hasAtemschutz = atemschutzBoxes[i].checked;
-          
-          let atemschutzText = hasAtemschutz ? " | Atemschutz" : "";
-          attendeesTextArray.push(`${names[i].value} (${roleText} | ${vehicleText}${atemschutzText})`);
-          
-          attendeesPdfArray.push({
-            name: names[i].value,
-            role: roleText,
-            vehicle: vehicleText,
-            atemschutz: hasAtemschutz
-          });
-        }
-      }
-
-      if (!topic || !rawDate || !startTime || !endTime || !leader || attendeesPdfArray.length === 0) {
-        alert("Bitte fülle alle Pflichtfelder aus und wähle mindestens einen Kameraden.");
-        return;
-      }
-
-      const payloadData = {
-        topic: topic,
-        date: formattedDate,
-        startTime: startTime,
-        endTime: endTime,
-        leader: leader,
-        notes: notes,
-        attendeesText: attendeesTextArray.join('\n'),
-        attendeesList: attendeesPdfArray
-      };
-
-      const btn = document.getElementById('submitBtn');
-      btn.innerText = "Bericht wird erstellt & gesendet...";
-      btn.disabled = true;
-
-      // Senden der Daten per fetch() an die Google Apps Script API
-      fetch(API_URL, {
-        method: 'POST',
-        // text/plain verhindert preflight CORS fehler bei Google Scripts
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8',
-        },
-        body: JSON.stringify({
-          action: 'saveData',
-          payload: payloadData
-        })
+  // ---------- Laden ----------
+  function loadSettings() {
+    fetch(API_URL + "?action=getSettings")
+      .then(r => r.json())
+      .then(res => {
+        if (res.status !== "success") throw new Error(res.message || "Unbekannter Fehler");
+        settings = res.data;
+        const leiter = settings.leiter.length ? settings.leiter : settings.kameraden;
+        fillSelect($("leader"), "Bitte wählen …", leiter);
+        $("date").value = todayIso();
+        addAttendee();
+        $("loading").style.display = "none";
+        $("form").style.display = "block";
       })
-      .then(response => response.json())
-      .then(result => {
-        const msgBox = document.getElementById('message');
-        if (result.status === 'success') {
-          msgBox.style.backgroundColor = '#e8f5e9';
-          msgBox.style.color = '#2e7d32';
-          msgBox.innerText = result.message;
-          
-          document.getElementById('rehearsalForm').reset();
-          document.getElementById('date').valueAsDate = new Date();
-          
-          document.getElementById('attendeesContainer').innerHTML = '';
+      .catch(err => {
+        console.error(err);
+        $("loading").innerHTML = "Fehler beim Laden der Daten.<br>Bitte Seite neu laden.";
+      });
+  }
+
+  // ---------- Absenden ----------
+  function submitForm(ev) {
+    ev.preventDefault();
+    document.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
+
+    const fields = ["topic", "date", "startTime", "endTime", "leader"];
+    const missing = fields.filter(id => !$(id).value.trim());
+    missing.forEach(id => $(id).classList.add("invalid"));
+
+    const attendees = [...document.querySelectorAll(".attendee-row")]
+      .map(row => ({
+        name: row.querySelector(".att-name").value,
+        role: row.querySelector(".att-role").value,
+        vehicle: row.querySelector(".att-vehicle").value,
+        atemschutz: row.querySelector(".att-as").checked
+      }))
+      .filter(a => a.name);
+
+    // Zeilen mit Funktion/Fahrzeug/AS aber ohne Namen markieren
+    let halbe = 0;
+    document.querySelectorAll(".attendee-row").forEach(row => {
+      const n = row.querySelector(".att-name");
+      const filled = row.querySelector(".att-role").value || row.querySelector(".att-vehicle").value || row.querySelector(".att-as").checked;
+      if (!n.value && (filled || attendees.length === 0)) { n.classList.add("invalid"); halbe++; }
+    });
+
+    if (missing.length || attendees.length === 0 || halbe) {
+      showMessage(attendees.length === 0
+        ? "Bitte mindestens einen Kameraden auswählen und alle Pflichtfelder ausfüllen."
+        : halbe ? "Bitte in jeder ausgefüllten Zeile einen Namen wählen (oder die Zeile entfernen)."
+        : "Bitte alle Pflichtfelder (*) ausfüllen.", false);
+      return;
+    }
+
+    const payload = {
+      topic: $("topic").value.trim(),
+      date: $("date").value,
+      startTime: $("startTime").value,
+      endTime: $("endTime").value,
+      leader: $("leader").value,
+      notes: $("notes").value.trim(),
+      attendees: attendees
+    };
+
+    const btn = $("submitBtn");
+    btn.disabled = true;
+    btn.textContent = "Bericht wird erstellt & gesendet …";
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },   // vermeidet CORS-Preflight
+      body: JSON.stringify({ action: "saveData", payload: payload })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.status === "success") {
+          showMessage(res.message, true);
+          $("form").reset();
+          $("date").value = todayIso();
+          $("attendees").innerHTML = "";
           addAttendee();
         } else {
-          msgBox.style.backgroundColor = '#ffebee';
-          msgBox.style.color = '#c62828';
-          msgBox.innerText = "Fehler: " + result.message;
+          showMessage("Fehler: " + res.message, false);
         }
-
-        btn.innerText = "Dienst speichern & PDF senden";
-        btn.disabled = false;
-        
-        setTimeout(() => { 
-          msgBox.innerText = ""; 
-          msgBox.style.backgroundColor = 'transparent';
-        }, 6000);
       })
-      .catch(error => {
-        alert("Verbindungsfehler. Bitte erneut versuchen.");
-        console.error("Post Error:", error);
-        btn.innerText = "Dienst speichern & PDF senden";
+      .catch(err => {
+        console.error(err);
+        showMessage("Verbindungsfehler – bitte erneut versuchen. Falls der Fehler bleibt, prüfen ob die Mail trotzdem angekommen ist, bevor du erneut sendest.", false);
+      })
+      .finally(() => {
         btn.disabled = false;
+        btn.textContent = SUBMIT_TEXT;
       });
-    }
-  </script>
+  }
+
+  $("addBtn").addEventListener("click", addAttendee);
+  $("form").addEventListener("submit", submitForm);
+  // Enter in Eingabefeldern soll nicht versehentlich absenden
+  $("form").addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT") e.preventDefault();
+  });
+  ["topic", "date", "startTime", "endTime", "leader"].forEach(id =>
+    $(id).addEventListener("input", () => $(id).classList.remove("invalid")));
+
+  loadSettings();
+</script>
 </body>
 </html>
